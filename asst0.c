@@ -3,6 +3,7 @@
 #include <string.h>
 //hello
 
+
 int main(int argc, char *argv[]){
 
 
@@ -17,3 +18,7 @@ int main(int argc, char *argv[]){
 //quicksort
 //integer and string comparator (cast void* input insidee functions)
 //modify sort code to accept comparators
+
+
+//yeo word
+
