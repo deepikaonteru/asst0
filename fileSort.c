@@ -172,7 +172,18 @@ int main(int argc, char ** argv){
 		printf("error,this is an empty file");
 		return -1;
 	}
+	
+	//tracking how much of the file read func has read in status	
+	/* int status = 1;
+	int written = 0;
 
+	while (status > 0 && written < size) {
+		//making sure read does not stop in the middle
+		status = read(fd, buffer + written, size - written);
+		written += status;
+	}
+	*/
+	/*
 	if (fd == -1)
 	{
 		printf("file won't open\n");
@@ -185,5 +196,77 @@ int main(int argc, char ** argv){
 
 	//close file
 	close(fd);
+}*/
+
+void refresh(char* buffer, int count) {
+
+	int i;
+	for(i=0; i<count; i ++) {
+
+		buffer[i]='\0';
+
+	}
+
 }
+
+void readFile(int fd) {
+
+	char buffer[200];
+	int i;
+	for(i=0; i<200; i ++) {
+
+		buffer[i]='\0';
+
+	}
+	int bytesRead;
+	int count=0;
+
+	do {
+
+		char c=0;
+		bytesRead = read(fd, &c, sizeof(char));
+		//printf("%d\n", bytesRead);
+		//printf("%c\n", c);
+		//CHECKS
+		if(c == ',' || bytesRead == 0) {
+
+			/*Create Node HERE*/
+			printf("%s\n", buffer);
+			refresh(buffer, count);
+			count=0;
+			
+
+		}
+		else if(isspace(c)) {
+
+			continue;
+
+		}
+		else {
+
+			buffer[count] = c;
+			count ++;
+
+		}
+		
+
+	} while(bytesRead > 0);
+
+}
+
+int main(int argc, char* argv[]) {
+
+	//initialize fd
+	int fd = open("Readme.txt", O_RDONLY);
+
+	readFile(fd);
+
+}
+
+//read from a file and extract tokens
+//code linked lists for sorting purposes
+//insertion sort
+//quicksort
+//integer and string comparator (cast void* input insidee functions)
+//modify sort code to accept comparators
 
