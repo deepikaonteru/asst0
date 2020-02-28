@@ -6,23 +6,26 @@
 #include <unistd.h>
 
 // Node struct to store string tokens that will form a linked list
-typedef struct _Node{
+typedef struct Node{
 	char* token; 
-	struct _Node* next;
+	struct Node* next;
 } Node;
 
 Node* create_node(char* string){
 	//allocate memory for a node with a defualt value
-	Node* node = (Node*)calloc(1, sizeof(Node));	
+	//Node* node = (Node*)calloc(1, sizeof(Node));
+	Node* node = (Node*)(malloc(sizeof(Node)));
 	node->next = NULL;	
 	//allocate memory & point node->token at the string we want to copy into said Node
 	node->token = strdup(string);
+	//node->token=string;
 	return node;	
 }
 
+/*
 int inserionSort( void* toSort, int (*comparator)(void*, void*) ) {
 
-}
+}*/
 
 
 Node* insert(Node* root, char* string){	
@@ -34,22 +37,25 @@ Node* insert(Node* root, char* string){
 		return root;
 	}
 
-	//add to end of list
-		ptr->next = create_node(string);
-		return root;
-	}
+	//add to beginning of list
+		Node* newNode = create_node(string);
+		newNode->next = root;
+		return newNode;
 }
-
+/*
 int comparator( void* s1, void* s2) {
-	int i,  ret;
+
+	
+	/*
+	int i=0,  ret;
 
 	//CHECK if chars or nums to cast 
-	if (string1[i].isalpha()) {
+	if (isalpha(s1[i])) {
 		(char*) s1;
 		(char*) s2;
 	}
 
-	if (string1[i].isdigit()){
+	if (s1[i].isdigit()){
 		// remember negative numbers '-'
 		(int*) s1;
 		(int*) s2;
@@ -72,8 +78,7 @@ int comparator( void* s1, void* s2) {
 		}
 		return ret;	
 	}
-
-}
+	*/
 
 void print_list(Node* root){
 	
@@ -108,96 +113,6 @@ void destroy(Node* root){
 	}
 }
 
-
-
-void refresh (char* buffer, int count){
-	int i;
-	for (i = 0; i < count; i++){
-		buffer[i] = '\0';
-	}
-}
-
-
-void readFile (int fd) {
-	char buffer[200];
-	int i;
-	
-	for(i = 0; i < 200; i++){
-		buffer[i] = '\0';
-	}
-	int bytesRead;
-	int count = 0;
-
-	do{
-		char c = 0;
-		bytesRead = read(fd, &c, sizeof(char));
-
-		//CHECKS
-		if (c == 'c' || bytesRead == 0) {
-
-		/* Create NODE here */
-		printf("%s\n", buffer);
-		refresh(buffer, count);
-		count = 0;
-		}
-
-		else if(isspace(c)){
-			continue;
-		}
-
-		else{
-			buffer[count] = c;
-			count++;
-		}
-
-	} while(bytesRead >0);
-
-}
-
-//read from a file and extract tokens
-//code linked lists for sorting purposes
-//insertion sort
-//quicksort
-//integer and string comparator (cast void* input inside functions)
-//modify sort code to accept comparators
-
-
-int main(int argc, char ** argv){
-
-	// ./fileSort -i ./somefile
-	
-	int fd  = open (argv[2], O_RDONLY|OCREAT, 0);
-	
-	if (fd  < 0) {
-		printf("error,this is an empty file");
-		return -1;
-	}
-	
-	//tracking how much of the file read func has read in status	
-	/* int status = 1;
-	int written = 0;
-
-	while (status > 0 && written < size) {
-		//making sure read does not stop in the middle
-		status = read(fd, buffer + written, size - written);
-		written += status;
-	}
-	*/
-	/*
-	if (fd == -1)
-	{
-		printf("file won't open\n");
-		return -1;
-	}
-
-	//tokenize the words
-
-	printf("file is opened/n");
-
-	//close file
-	close(fd);
-}*/
-
 void refresh(char* buffer, int count) {
 
 	int i;
@@ -209,7 +124,7 @@ void refresh(char* buffer, int count) {
 
 }
 
-void readFile(int fd) {
+Node* readFile(int fd) {
 
 	char buffer[200];
 	int i;
@@ -220,6 +135,7 @@ void readFile(int fd) {
 	}
 	int bytesRead;
 	int count=0;
+	Node* root;
 
 	do {
 
@@ -231,7 +147,9 @@ void readFile(int fd) {
 		if(c == ',' || bytesRead == 0) {
 
 			/*Create Node HERE*/
-			printf("%s\n", buffer);
+			root = insert(root, buffer);
+			//printf("%s\n", root->token);
+			//printf("%s\n", buffer);
 			refresh(buffer, count);
 			count=0;
 			
@@ -252,6 +170,8 @@ void readFile(int fd) {
 
 	} while(bytesRead > 0);
 
+	return root;
+
 }
 
 int main(int argc, char* argv[]) {
@@ -259,7 +179,9 @@ int main(int argc, char* argv[]) {
 	//initialize fd
 	int fd = open("Readme.txt", O_RDONLY);
 
-	readFile(fd);
+	//Initialize list
+	Node* root=readFile(fd);
+	print_list(root);
 
 }
 
