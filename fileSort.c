@@ -7,7 +7,14 @@
 
 //hello
 
+typedef struct Node {
 
+	char* word;
+	struct Node* next;
+
+} Node;
+
+/*
 int main(int argc, char ** argv){
 
 	// ./fileSort -i ./somefile
@@ -38,7 +45,7 @@ int main(int argc, char ** argv){
 		written += status;
 	}
 	*/
-
+	/*
 	if (fd == -1)
 	{
 		printf("file won't open\n");
@@ -52,8 +59,73 @@ int main(int argc, char ** argv){
 
 	//close file
 	close(fd);
+}*/
+
+void refresh(char* buffer, int count) {
+
+	int i;
+	for(i=0; i<count; i ++) {
+
+		buffer[i]='\0';
+
+	}
+
 }
 
+void readFile(int fd) {
+
+	char buffer[200];
+	int i;
+	for(i=0; i<200; i ++) {
+
+		buffer[i]='\0';
+
+	}
+	int bytesRead;
+	int count=0;
+
+	do {
+
+		char c=0;
+		bytesRead = read(fd, &c, sizeof(char));
+		//printf("%d\n", bytesRead);
+		//printf("%c\n", c);
+		//CHECKS
+		if(c == ',' || bytesRead == 0) {
+
+			/*Create Node HERE*/
+			printf("%s\n", buffer);
+			refresh(buffer, count);
+			count=0;
+			
+
+		}
+		else if(isspace(c)) {
+
+			continue;
+
+		}
+		else {
+
+			buffer[count] = c;
+			count ++;
+
+		}
+		
+
+	} while(bytesRead > 0);
+
+}
+
+int main(int argc, char* argv[]) {
+
+	//initialize fd
+	int fd = open("Readme.txt", O_RDONLY);
+
+	readFile(fd);
+
+}
+/*
 void readFile (int fd) {
     char buffer[10];
     int bytes_read;
@@ -70,9 +142,9 @@ void readFile (int fd) {
             k = 0;
         }
     }
-    while (bytes_read < 0); 
+    while (bytes_read > 0); 
 }
-
+*/
 //read from a file and extract tokens
 //code linked lists for sorting purposes
 //insertion sort
