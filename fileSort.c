@@ -5,13 +5,29 @@
 #include <fcntl.h>
 #include <unistd.h>
 
-// Node struct to store string tokens that will form a linked list
+/* Node struct to store string tokens that will form a linked list*/
 typedef struct Node{
 	char* token; 
 	struct Node* next;
 } Node;
 
-Node* create_node(char* string){
+/* flag stores whether file is ints or chars*/
+char flag;
+
+Node* readFile(int fd);
+Node* createNode(char* string);
+Node* insert(Node* root, char* string);
+Node* firstToken(Node* root);
+char isIntOrStringFile(Node* token);
+int comparator( void* s1, void* s2);
+int stringComparator( void* s1, void* s2);
+int intComparator( void* s1, void* s2);
+void printList(Node* root);
+void destroy(Node* root);
+void refresh(char* buffer, int count);
+
+
+Node* createNode(char* string){
 	//allocate memory for a node with a defualt value
 	//Node* node = (Node*)calloc(1, sizeof(Node));
 	Node* node = (Node*)(malloc(sizeof(Node)));
@@ -22,65 +38,116 @@ Node* create_node(char* string){
 	return node;	
 }
 
-/*
-int inserionSort( void* toSort, int (*comparator)(void*, void*) ) {
-
-}*/
-
-
 Node* insert(Node* root, char* string){	
 	//if the root Node is NULL, add a new string to the front of the list, 
 	//then return the updated root Node.
 	if(root == NULL)
 	{
-		root = create_node(string);
+		root = createNode(string);
 		return root;
 	}
 
 	//add to beginning of list
-		Node* newNode = create_node(string);
+		Node* newNode = createNode(string);
 		newNode->next = root;
 		return newNode;
 }
-/*
-int comparator( void* s1, void* s2) {
 
-	
-	/*
-	int i=0,  ret;
+Node* firstToken(Node* root){
 
-	//CHECK if chars or nums to cast 
-	if (isalpha(s1[i])) {
-		(char*) s1;
-		(char*) s2;
-	}
-
-	if (s1[i].isdigit()){
-		// remember negative numbers '-'
-		(int*) s1;
-		(int*) s2;
-	}
-	
-	//lowercase letters or numbers
-	for(i=0; i< strlen(s1); i++){
-		for(i=0; strlen(s2); i++){
-			if (s1[i] < s2[i]){
-				ret = -1;
-				break;
-			}
-			else if (s1[i] > s2[i]){
-				ret = 1;
-				break;
-			}
-			else{
-				continue;
-			}
+	do {
+		if(root!=NULL){
+			return root;
 		}
-		return ret;	
-	}
-	*/
+		root = root->next;
+	} while(root != NULL && root->token != NULL);
 
-void print_list(Node* root){
+}
+
+char isIntOrStringFile(Node* token){
+
+	int i=0;
+	char flag;
+
+	if (token == NULL){
+		// file of ,,,,, or empty file
+		flag  =  'e';
+	}
+
+	if (isdigit(token->token[i]) || token->token[i] == '-'){
+		flag = 'i';
+	}
+
+	if (isalpha(token->token[i])){
+		flag = 'a';
+	}
+
+	return flag; 
+
+}
+
+int comparator( void* s1, void* s2) {
+	Node* firstToken = s1;
+	Node* secondToken = s2;
+
+	int ret;
+
+	if (flag == 'i'){
+		ret = intComparator(firstToken->token, secondToken->token);
+	}
+
+	if (flag == 's'){
+		ret	= stringComparator(firstToken->token, secondToken->token);
+	}
+}
+
+int stringComparator(void* s1, void* s2) {
+	int i,ret;
+	char* firstToken = (char*) s1;
+	char* secondToken = (char*) s2;
+
+	if (firstToken == NULL){
+		return -1;
+	}
+	if (secondToken == NULL){
+		return 1;
+	}
+
+	for(i = 0; firstToken[i] == secondToken[i] && firstToken[i] == '\0'; i++){
+	}
+		   
+	if(firstToken[i] < secondToken[i]){
+		ret = -1;
+	}
+	else if(firstToken[i] > secondToken[i]){
+		ret = 1;
+	}
+	else{
+		//both are same
+		ret = -1;
+	}
+	
+	return ret;	
+}
+
+
+int intComparator( void* s1, void* s2) {
+	int val1 = atoi(s1);
+	int val2 = atoi(s2);
+	int ret;
+
+	if (val1 < val2){
+		ret = -1;
+	}
+	else if (val1 > val2){
+		ret = 1;
+	}
+	else{
+		ret = -1;
+	}
+}
+
+void printList(Node* root){
 	
 	//create a ptr, set to NULL by default
 	Node* ptr = NULL;
@@ -91,8 +158,7 @@ void print_list(Node* root){
 		//print string ptr is referencing
 		printf("%s\n", ptr->token);
 	}
-
-}
+} 
 
 void destroy(Node* root){
 	//reference to root
@@ -113,7 +179,7 @@ void destroy(Node* root){
 	}
 }
 
-void refresh(char* buffer, int count) {
+void refresh(char* buffer, int count){
 
 	int i;
 	for(i=0; i<count; i ++) {
@@ -174,14 +240,80 @@ Node* readFile(int fd) {
 
 }
 
+/* function to sort a singly linked list using insertion sort */
+int insertionSort( void* toSort, int (*comparator)(void*, void*) ) {
+	//passing in head of linked list of the file 
+	struct Node *sorted = NULL; 
+
+	// traverse the given linked list and insert every node to sorted 
+    struct Node* current = *toSort; 
+    while (current != NULL) 
+    { 
+        // Store next for next iteration 
+        struct Node* token = current->token; 
+  
+        // insert current in sorted linked list 
+        sortedInsert(&sorted, current); 
+  
+        // Update current 
+        current = current->next; 
+    } 
+  
+    // Update head_ref to point to sorted linked list 
+    *toSort = sorted; 
+
+}
+  
+void sortedInsert(struct Node** head_ref, struct Node* new_node) { 
+    struct Node* current; 
+    /* Special case for the head end */
+    if (*head_ref == NULL || (*head_ref)->data >= new_node->data) 
+    { 
+        new_node->next = *head_ref; 
+        *head_ref = new_node; 
+    } 
+    else
+    { 
+        /* Locate the node before the point of insertion */
+        current = *head_ref; 
+        while (current->next!=NULL && 
+               current->next->data < new_node->data) 
+        { 
+            current = current->next; 
+        } 
+        new_node->next = current->next; 
+        current->next = new_node; 
+    } 
+} 
+
+
+/*
+int quickSort( void* toSort, int (*comparator)(void*, void*) ) {
+
+}*/
+
 int main(int argc, char* argv[]) {
 
 	//initialize fd
 	int fd = open("Readme.txt", O_RDONLY);
 
-	//Initialize list
+	//initialize list
 	Node* root=readFile(fd);
-	print_list(root);
+	printList(root);
+
+	//find first non-empty token in order to use it to determine if we are dealing with ints or chars
+	Node* firstNonEmptyToken = firstToken(root);
+
+	flag = isIntOrStringFile(firstNonEmptyToken);
+	printf("%s\n",firstNonEmptyToken->token);
+	printf("%c\n",flag);
+
+	char* word1 = "apple";
+	char* word2 = "apple";
+	int test = stringComparator(word1,word2);
+	printf("%d\n",test);
+
+	close(fd);
 
 }
 
@@ -189,6 +321,5 @@ int main(int argc, char* argv[]) {
 //code linked lists for sorting purposes
 //insertion sort
 //quicksort
-//integer and string comparator (cast void* input insidee functions)
+//integer and string comparator (cast void* input inside functions)
 //modify sort code to accept comparators
-
