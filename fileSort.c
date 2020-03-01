@@ -22,11 +22,13 @@ char isIntOrStringFile(Node* token);
 int comparator( void* s1, void* s2);
 int stringComparator( void* s1, void* s2);
 int intComparator( void* s1, void* s2);
+//void insertIntoSortedList(Node* unsortedList, Node* toInsert, int (*comparator)(void*, void*));
+//void insertIntoSortedList(Node* unsortedList, Node* sortedList, Node* toInsert, int (*comparator)(void*, void*));
 int insertionSort(void* toSort, int (*comparator)(void*, void*));
 void printList(Node* root);
 void destroy(Node* root);
 void refresh(char* buffer, int count);
-void insertIntoSortedList(Node* unsortedList, Node* toInsert);
+//void insertIntoSortedList(Node* unsortedList, Node* toInsert);
 
 
 Node* createNode(char* string){
@@ -71,6 +73,7 @@ Node* firstToken(Node* root){
 
 }
 
+
 char isIntOrStringFile(Node* token){
 
 	char nFlag;
@@ -88,24 +91,25 @@ char isIntOrStringFile(Node* token){
 	else if (isalpha(token->token[0])){
 		nFlag = 'a';
 	}
-
 	return nFlag; 
 
 }
+
 
 int comparator(void* s1, void* s2) {
 	Node* firstToken = (Node*)s1;
 	Node* secondToken = (Node*)s2;
 
+	//printf("%s\n", firstToken->token);
 	int ret;
 
 	if (flag == 'i'){
-		printf("ye");
+		//printf("ye\n");
 		ret = intComparator(firstToken->token, secondToken->token);
 	}
 
 	else if (flag == 'a'){
-		printf("ye");
+		//printf("ye\n");
 		ret	= stringComparator(firstToken->token, secondToken->token);
 	}
 	return ret;
@@ -248,106 +252,63 @@ Node* readFile(int fd) {
 
 }
 
-/* function to sort a singly linked list using insertion sort */
-/*int insertionSort( void* toSort, int (*comparator)(void*, void*) ) {
-	//passing in head of linked list of the file 
-	struct Node *sorted = NULL; 
-
-	// traverse the given linked list and insert every node to sorted 
-    struct Node* current = *toSort; 
-    while (current != NULL) 
-    { 
-        // Store next for next iteration 
-        struct Node* token = current->token; 
-  
-        // insert current in sorted linked list 
-        sortedInsert(&sorted, current); 
-  
-        // Update current 
-        current = current->next; 
-    } 
-  
-    // Update head_ref to point to sorted linked list 
-    *toSort = sorted; 
-
-}*/
-/*  
-void sortedInsert(struct Node** head_ref, struct Node* new_node) { 
-    struct Node* current; 
-    /* Special case for the head end *//*
-    if (*head_ref == NULL || (*head_ref)->data >= new_node->data) 
-    { 
-        new_node->next = *head_ref; 
-        *head_ref = new_node; 
-    } 
-    else
-    { 
-        /* Locate the node before the point of insertion *//*
-        current = *head_ref; 
-        while (current->next!=NULL && 
-               current->next->data < new_node->data) 
-        { 
-            current = current->next; 
-        } 
-        new_node->next = current->next; 
-        current->next = new_node; 
-    } 
-} 
-*/
 
 int insertionSort(void* toSort, int (*comparator)(void*, void*)) {
 
 	//printList(toSort);
-	//printf("\n");
 	Node* unsortedList = (Node*)toSort;
+	//printList(unsortedList);
 	Node* sortedList = NULL;
 
 	Node* curr = unsortedList;
+
 	while(curr != NULL) {
 
 		Node* next = curr->next;
-		insertIntoSortedList(sortedList, curr);
-		curr = next;
+		/*insertIntoSortedList(sortedList, curr, comparator);*/
+		Node* toInsert = curr;
+		if(sortedList == NULL) {
 
-	}
-	unsortedList = sortedList;
-	//printList(sortedList);
-
-}
-
-void insertIntoSortedList(Node* unsortedList, Node* toInsert) {
-
-	//CHECK IF THE NODE TO INSERT HAS TO GO BEFORE HEAD
-	if(unsortedList == NULL) {
-
-		toInsert->next = unsortedList;
-		unsortedList = toInsert;
-
-	}
-	else if(comparator(unsortedList, toInsert)==-1 ||
-		     comparator(unsortedList, toInsert)==0)
-	{
-		int tst=comparator(unsortedList, toInsert);
-		printf("%d\n", tst);
-		toInsert->next = unsortedList;
-		unsortedList = toInsert;
-
-	}
-
-	else {
-
-		Node* sortedPtr = unsortedList;
-		while(sortedPtr->next != NULL && comparator(sortedPtr->next, toInsert)==1) {
-
-			sortedPtr = sortedPtr->next;
+			toInsert->next = sortedList;
+			sortedList = toInsert;
+		
+			printf("kiki %s\n",*unsortedList);
 
 		}
-		toInsert->next = sortedPtr->next;
-		sortedPtr->next = toInsert;
+		else if(comparator(sortedList, toInsert)==-1 ||
+		     comparator(sortedList, toInsert)==0)
+		{
+			//int tst=comparator(sortedList, toInsert);
+			//printf("%d\n", tst);
+			toInsert->next = sortedList;
+			sortedList = toInsert;
 
+		}
+
+		else {
+
+			Node* sortedPtr = sortedList;
+			while(sortedPtr->next != NULL && comparator(sortedPtr->next, toInsert)==1) {				
+				sortedPtr = sortedPtr->next;
+			}
+			toInsert->next = sortedPtr->next;
+			sortedPtr->next = toInsert;
+
+		}
+	/*Done inserting one into sorted list*/
+		curr = next;
 	}
 
+	unsortedList = sortedList;
+	//printList(sortedList);
+ 
 }
+
+/*oid insertIntoSortedList(Node* unsortedList, Node* toInsert, int (*comparator)(void*, void*)) {
+
+	//CHECK IF THE NODE TO INSERT HAS TO GO BEFORE HEAD
+	
+}*/
 
 /*
 int quickSort( void* toSort, int (*comparator)(void*, void*) ) {
@@ -381,8 +342,12 @@ int main(int argc, char* argv[]) {
 	printf("%d\n", test);
 	*/
 
+
+
+	//printf("%c\n",flag);
+
 	//int (*fnPtr)(void*, void*) = comparator;
-	//insertionSort(root, fnPtr);
+	insertionSort(root, comparator);
 	//printList(root);
 
 	destroy(root);
