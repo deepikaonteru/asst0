@@ -22,9 +22,8 @@ char isIntOrStringFile(Node* token);
 int comparator( void* s1, void* s2);
 int stringComparator( void* s1, void* s2);
 int intComparator( void* s1, void* s2);
-//void insertIntoSortedList(Node* unsortedList, Node* toInsert, int (*comparator)(void*, void*));
-//void insertIntoSortedList(Node* unsortedList, Node* sortedList, Node* toInsert, int (*comparator)(void*, void*));
 int insertionSort(void* toSort, int (*comparator)(void*, void*));
+int quickSort( void* toSort, int (*comparator)(void*, void*)); 
 void printList(Node* root);
 void destroy(Node* root);
 void refresh(char* buffer, int count);
@@ -145,9 +144,18 @@ int stringComparator(void* s1, void* s2) {
 
 
 int intComparator( void* s1, void* s2) {
+
+	if (s1 == NULL){
+		return -1;
+	}
+	if (s2 == NULL){
+		return 1;
+	}
+
 	int val1 = atoi(s1);
 	int val2 = atoi(s2);
 
+	
 	if (val1 < val2){
 		return -1;
 	}
@@ -254,65 +262,61 @@ Node* readFile(int fd) {
 
 
 int insertionSort(void* toSort, int (*comparator)(void*, void*)) {
-
 	//printList(toSort);
 	Node* unsortedList = (Node*)toSort;
 	//printList(unsortedList);
 	Node* sortedList = NULL;
-
 	Node* curr = unsortedList;
 
 	while(curr != NULL) {
 
 		Node* next = curr->next;
-		/*insertIntoSortedList(sortedList, curr, comparator);*/
 		Node* toInsert = curr;
-		if(sortedList == NULL) {
+		/*insertIntoSortedList(sortedList, curr, comparator);*/
+ 		if(sortedList == NULL) {
 
 			toInsert->next = sortedList;
 			sortedList = toInsert;
 		
-			printf("kiki %s\n",*unsortedList);
+			//printf("kiki %s\n",*unsortedList);
+			//printList(sortedList);
 
 		}
-		else if(comparator(sortedList, toInsert)==-1 ||
+		else if(comparator(sortedList, toInsert)==1 ||
 		     comparator(sortedList, toInsert)==0)
 		{
 			//int tst=comparator(sortedList, toInsert);
 			//printf("%d\n", tst);
 			toInsert->next = sortedList;
 			sortedList = toInsert;
-
+			//printf("do you %s\n",*unsortedList);
+			//printList(sortedList);
 		}
 
 		else {
 
 			Node* sortedPtr = sortedList;
-			while(sortedPtr->next != NULL && comparator(sortedPtr->next, toInsert)==1) {				
+			while(sortedPtr->next != NULL && comparator(sortedPtr->next, toInsert)==-1) {				
 				sortedPtr = sortedPtr->next;
 			}
 			toInsert->next = sortedPtr->next;
 			sortedPtr->next = toInsert;
-
+			//printf("love me %s\n",*unsortedList);
+			//printList(sortedList);
 		}
 	/*Done inserting one into sorted list*/
 		curr = next;
 	}
 
 	unsortedList = sortedList;
-	//printList(sortedList);
+	printList(sortedList);
  
 }
 
-/*oid insertIntoSortedList(Node* unsortedList, Node* toInsert, int (*comparator)(void*, void*)) {
 
-	//CHECK IF THE NODE TO INSERT HAS TO GO BEFORE HEAD
-	
-}*/
 
-/*
 int quickSort( void* toSort, int (*comparator)(void*, void*) ) {
-}*/
+}
 
 int main(int argc, char* argv[]) {
 
@@ -345,6 +349,8 @@ int main(int argc, char* argv[]) {
 
 
 	//printf("%c\n",flag);
+	printList(root);
+	printf("endoforiglist\n");
 
 	//int (*fnPtr)(void*, void*) = comparator;
 	insertionSort(root, comparator);
