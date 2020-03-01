@@ -18,39 +18,35 @@ Node* readFile(int fd);
 Node* createNode(char* string);
 Node* insert(Node* root, char* string);
 Node* firstToken(Node* root);
+void printList(Node* root);
+void destroy(Node* root);
+void refresh(char* buffer, int count);
 char isIntOrStringFile(Node* token);
 int comparator( void* s1, void* s2);
 int stringComparator( void* s1, void* s2);
 int intComparator( void* s1, void* s2);
 int insertionSort(void* toSort, int (*comparator)(void*, void*));
 int quickSort( void* toSort, int (*comparator)(void*, void*)); 
-void printList(Node* root);
-void destroy(Node* root);
-void refresh(char* buffer, int count);
-//void insertIntoSortedList(Node* unsortedList, Node* toInsert);
-
 
 Node* createNode(char* string){
-	//allocate memory for a node with a defualt value
-	//Node* node = (Node*)calloc(1, sizeof(Node));
+	// allocate memory for a node with a defualt value
 	Node* node = (Node*)(malloc(sizeof(Node)));
 	node->next = NULL;	
-	//allocate memory & point node->token at the string we want to copy into said Node
+	// allocate memory & point node->token at the string we want to copy into said Node
 	node->token = strdup(string);
-	//node->token=string;
 	return node;	
 }
 
 Node* insert(Node* root, char* string){	
-	//if the root Node is NULL, add a new string to the front of the list, 
-	//then return the updated root Node.
+	// if the root Node is NULL, add a new string to the front of the list, 
+	// then return the updated root Node.
 	if(root == NULL)
 	{
 		root = createNode(string);
 		return root;
 	}
 
-	//add to beginning of list
+	// add to beginning of list
 		Node* newNode = createNode(string);
 		newNode->next = root;
 		return newNode;
@@ -64,7 +60,7 @@ Node* firstToken(Node* root){
 			tmp=tmp->next;
 		}
 		else {
-			//Useful for setting flags
+			// Useful for setting flags
 			return tmp;
 		}
 	}
@@ -125,7 +121,7 @@ int stringComparator(void* s1, void* s2) {
 		return 1;
 	}
 
-	/*Setting positions to check*/
+	//Setting positions to check
 	int i=0;
 	while(firstToken[i]==secondToken[i] && firstToken[i]!='\0') {
 		i ++;
@@ -145,10 +141,13 @@ int stringComparator(void* s1, void* s2) {
 
 int intComparator( void* s1, void* s2) {
 
-	if (s1 == NULL){
+	char* firstToken = (char*) s1;
+	char* secondToken = (char*) s2;
+
+	if (firstToken[0] == '\0'){
 		return -1;
 	}
-	if (s2 == NULL){
+	if (secondToken[0] == '\0'){
 		return 1;
 	}
 
@@ -169,10 +168,10 @@ int intComparator( void* s1, void* s2) {
 
 void printList(Node* root){
 	
-	//create a ptr, set to NULL by default
+	// create a ptr, set to NULL by default
 	Node* ptr = NULL;
 	
-	//loop through while ptr isn't at the end of the list
+	// loop through while ptr isn't at the end of the list
 	for(ptr = root; ptr!=NULL; ptr = ptr->next){
 
 		//print string ptr is referencing
@@ -181,20 +180,20 @@ void printList(Node* root){
 } 
 
 void destroy(Node* root){
-	//reference to root
+	// reference to root
 	Node* ptr = root;
 
-	//run until there are no more pointers
+	// run until there are no more pointers
 	while(ptr != NULL){
 		
-		//make temp pointer to everything past ptr
+		// make temp pointer to everything past ptr
 		Node* temp = ptr->next;
 		
-		//free the char* the current Node as well as the Node itself
+		// free the char* the current Node as well as the Node itself
 		free(ptr->token);
 		free(ptr);
 		
-		//move the ptr to the next element in the list
+		// move the ptr to the next element in the list
 		ptr = temp;
 	}
 }
@@ -327,7 +326,7 @@ int main(int argc, char* argv[]) {
 	Node* root=readFile(fd);
 	//printList(root);
 
-	//find first non-empty token in order to use it to determine if we are dealing with ints or chars
+	// find first non-empty token in order to use it to determine if we are dealing with ints or chars
 	Node* firstNonEmptyToken = firstToken(root);
 
 	flag = isIntOrStringFile(firstNonEmptyToken);
