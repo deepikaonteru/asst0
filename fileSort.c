@@ -175,7 +175,15 @@ void printList(Node* root){
 	for(ptr = root; ptr!=NULL; ptr = ptr->next){
 
 		//print string ptr is referencing
-		printf("%s\n", ptr->token);
+		//If you are a number, print out the numerical VALUE
+		if(flag=='i') {
+			//If you are an empty token, we're printing a newLine cuz ur empty
+			if(ptr->token[0]=='\0') printf("\n");
+			//Otherwise, you are definitely a number, in which case we must print u as number
+			else printf("%d\n", atoi(ptr->token));
+		}
+		//Otherwise you are a string
+		else printf("%s\n", ptr->token);
 	}
 } 
 
