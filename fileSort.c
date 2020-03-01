@@ -76,7 +76,6 @@ char isIntOrStringFile(Node* token){
 	if (token == NULL){
 		// file of ,,,,, or empty file
 		nFlag  =  'e';
-		printf("did that\n");
 	}
 
 	else if (isdigit(token->token[0]) || token->token[0] == '-'){
@@ -327,17 +326,64 @@ int quickSort( void* toSort, int (*comparator)(void*, void*) ) {
 
 int main(int argc, char* argv[]) {
 
-	//initialize fd
-	int fd = open("Readme.txt", O_RDONLY);
+	//printf("%d\n\n", argc);
+	//Not enough args passed in
+	if(argc < 2) {
+		printf("Fatal Error: expected two arguments, had none\n");
+		return -1;
+	}
+	else if(argc < 3) {
+		printf("Fatal Error: expected two arguments, had one\n");
+		return -1;
+	}
 
+	//File exist?
+	if(open(argv[2], O_RDONLY) == -1) {
+		int errsv = errno;
+		printf("Fatal Error: file \"");
+		printf("%s\" ", argv[2]);
+		printf("does not exist\n");
+		return -1;
+		/*
+		printf("Fatal Error: file ");
+		printf("%s ", argv[2]);
+		printf("does not exist.\n");
+		return -1;
+		*/
+	}
+
+	//Wrong sort flag?
+	if(argv[1][0] != '-') {
+		printf("Fatal Error: \"%s\" ", argv[1]);
+		printf("is not a valid sort flag\n");
+		return -1;
+	}
+	if(argv[1][1] != 'i' && argv[1][1] != 'q') {
+		printf("Fatal Error: \"%s\" ", argv[1]);
+		printf("is not a valid sort flag\n");
+		return -1;		
+	}
+
+	//Actually open now
+	int fd = open(argv[2], O_RDONLY);
 	//initialize list
 	Node* root=readFile(fd);
 	//printList(root);
+	//printf("\n\n");
 
+	//If root is empty token, that means token at end of file was empty, we don't want that token included
+	if(root->token[0]=='\0') root=root->next;
+	
 	// find first non-empty token in order to use it to determine if we are dealing with ints or chars
 	Node* firstNonEmptyToken = firstToken(root);
-
 	flag = isIntOrStringFile(firstNonEmptyToken);
+
+	//all empty tokens?
+	if(flag == 'e') {
+		printList(root);
+		return 1;
+	}
+
 	//printf("%s\n",firstNonEmptyToken->token);
 	//printf("%c\n",flag);
 	/*
@@ -353,15 +399,24 @@ int main(int argc, char* argv[]) {
 	printf("%d\n", test);
 	*/
 
-
-
 	//printf("%c\n",flag);
-	printList(root);
-	printf("endoforiglist\n");
+	//printList(root);
+	//printf("endoforiglist\n");
 
 	//int (*fnPtr)(void*, void*) = comparator;
-	insertionSort(root, comparator);
+	//insertionSort(root, comparator);
 	//printList(root);
+
+	//insertion sort or quicksort?
+
+	//insertion
+	if(argv[1][1] == 'i') {
+		insertionSort(root, comparator);
+	}
+	//dumbquick
+	else {
+		
+	}
 
 	destroy(root);
 	close(fd);
