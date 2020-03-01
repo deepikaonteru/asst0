@@ -9,7 +9,6 @@
 typedef struct Node{
 	char* token; 
 	struct Node* next;
-	int size;
 } Node;
 
 /* flag stores whether file is ints or chars*/
@@ -225,7 +224,7 @@ void destroy(Node* root){
 		Node* temp = ptr->next;
 		
 		// free the char* the current Node as well as the Node itself
-		free(ptr->token);
+		//free(ptr->token);
 		free(ptr);
 		
 		// move the ptr to the next element in the list
@@ -268,7 +267,6 @@ Node* readFile(int fd) {
 
 			/*Create Node HERE*/
 			root = insert(root, buffer);
-			root->size = count;
 			//printf("%s\n", root->token);
 			//printf("%s\n", buffer);
 			refresh(buffer, count);
@@ -415,11 +413,13 @@ int main(int argc, char* argv[]) {
 	}
 
 	//File exist?
-	if(open(argv[2], O_RDONLY) == -1) {
+	int fd = open(argv[2], O_RDONLY);
+	if(fd == -1) {
 		int errsv = errno;
 		printf("Fatal Error: file \"");
 		printf("%s\" ", argv[2]);
 		printf("does not exist\n");
+		close(fd);
 		return -1;
 		/*
 		printf("Fatal Error: file ");
@@ -433,16 +433,16 @@ int main(int argc, char* argv[]) {
 	if(argv[1][0] != '-') {
 		printf("Fatal Error: \"%s\" ", argv[1]);
 		printf("is not a valid sort flag\n");
+		close(fd);
 		return -1;
 	}
 	if(argv[1][1] != 'i' && argv[1][1] != 'q') {
 		printf("Fatal Error: \"%s\" ", argv[1]);
 		printf("is not a valid sort flag\n");
+		close(fd);
 		return -1;		
 	}
 
-	//Actually open now
-	int fd = open(argv[2], O_RDONLY);
 	//initialize list
 	Node* root=readFile(fd);
 	//printList(root);
