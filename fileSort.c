@@ -22,9 +22,11 @@ char isIntOrStringFile(Node* token);
 int comparator( void* s1, void* s2);
 int stringComparator( void* s1, void* s2);
 int intComparator( void* s1, void* s2);
+int insertionSort(void* toSort, int (*comparator)(void*, void*));
 void printList(Node* root);
 void destroy(Node* root);
 void refresh(char* buffer, int count);
+void insertIntoSortedList(Node* unsortedList, Node* toInsert);
 
 
 Node* createNode(char* string){
@@ -55,54 +57,61 @@ Node* insert(Node* root, char* string){
 
 Node* firstToken(Node* root){
 
-	do {
-		if(root!=NULL){
-			return root;
+	Node* tmp=root;
+	while(tmp!=NULL) {
+		if(tmp->token[0]=='\0') {
+			tmp=tmp->next;
 		}
-		root = root->next;
-	} while(root != NULL && root->token != NULL);
+		else {
+			//Useful for setting flags
+			return tmp;
+		}
+	}
+	return tmp;
 
 }
 
 char isIntOrStringFile(Node* token){
 
-	int i=0;
-	char flag;
+	char nFlag;
 
 	if (token == NULL){
 		// file of ,,,,, or empty file
-		flag  =  'e';
+		nFlag  =  'e';
+		printf("did that\n");
 	}
 
-	if (isdigit(token->token[i]) || token->token[i] == '-'){
-		flag = 'i';
+	else if (isdigit(token->token[0]) || token->token[0] == '-'){
+		nFlag = 'i';
 	}
 
-	if (isalpha(token->token[i])){
-		flag = 'a';
+	else if (isalpha(token->token[0])){
+		nFlag = 'a';
 	}
 
-	return flag; 
+	return nFlag; 
 
 }
 
-int comparator( void* s1, void* s2) {
-	Node* firstToken = s1;
-	Node* secondToken = s2;
+int comparator(void* s1, void* s2) {
+	Node* firstToken = (Node*)s1;
+	Node* secondToken = (Node*)s2;
 
 	int ret;
 
 	if (flag == 'i'){
+		printf("ye");
 		ret = intComparator(firstToken->token, secondToken->token);
 	}
 
-	if (flag == 's'){
+	else if (flag == 'a'){
+		printf("ye");
 		ret	= stringComparator(firstToken->token, secondToken->token);
 	}
+	return ret;
 }
 
 int stringComparator(void* s1, void* s2) {
-	int i,ret;
 	char* firstToken = (char*) s1;
 	char* secondToken = (char*) s2;
 
@@ -113,38 +122,37 @@ int stringComparator(void* s1, void* s2) {
 		return 1;
 	}
 
-	for(i = 0; firstToken[i] == secondToken[i] && firstToken[i] == '\0'; i++){
+	/*Setting positions to check*/
+	int i=0;
+	while(firstToken[i]==secondToken[i] && firstToken[i]!='\0') {
+		i ++;
 	}
 		   
 	if(firstToken[i] < secondToken[i]){
-		ret = -1;
+		return -1;
 	}
 	else if(firstToken[i] > secondToken[i]){
-		ret = 1;
+		return 1;
 	}
-	else{
-		//both are same
-		ret = -1;
-	}
+		
+	return 0;
 	
-	return ret;	
 }
 
 
 int intComparator( void* s1, void* s2) {
 	int val1 = atoi(s1);
 	int val2 = atoi(s2);
-	int ret;
 
 	if (val1 < val2){
-		ret = -1;
+		return -1;
 	}
 	else if (val1 > val2){
-		ret = 1;
+		return 1;
 	}
-	else{
-		ret = -1;
-	}
+		
+	return 0;
+	
 }
 
 void printList(Node* root){
@@ -241,7 +249,7 @@ Node* readFile(int fd) {
 }
 
 /* function to sort a singly linked list using insertion sort */
-int insertionSort( void* toSort, int (*comparator)(void*, void*) ) {
+/*int insertionSort( void* toSort, int (*comparator)(void*, void*) ) {
 	//passing in head of linked list of the file 
 	struct Node *sorted = NULL; 
 
@@ -262,11 +270,11 @@ int insertionSort( void* toSort, int (*comparator)(void*, void*) ) {
     // Update head_ref to point to sorted linked list 
     *toSort = sorted; 
 
-}
-  
+}*/
+/*  
 void sortedInsert(struct Node** head_ref, struct Node* new_node) { 
     struct Node* current; 
-    /* Special case for the head end */
+    /* Special case for the head end *//*
     if (*head_ref == NULL || (*head_ref)->data >= new_node->data) 
     { 
         new_node->next = *head_ref; 
@@ -274,7 +282,7 @@ void sortedInsert(struct Node** head_ref, struct Node* new_node) {
     } 
     else
     { 
-        /* Locate the node before the point of insertion */
+        /* Locate the node before the point of insertion *//*
         current = *head_ref; 
         while (current->next!=NULL && 
                current->next->data < new_node->data) 
@@ -285,11 +293,64 @@ void sortedInsert(struct Node** head_ref, struct Node* new_node) {
         current->next = new_node; 
     } 
 } 
+*/
 
+int insertionSort(void* toSort, int (*comparator)(void*, void*)) {
+
+	//printList(toSort);
+	//printf("\n");
+	Node* unsortedList = (Node*)toSort;
+	Node* sortedList = NULL;
+
+	Node* curr = unsortedList;
+	while(curr != NULL) {
+
+		Node* next = curr->next;
+		insertIntoSortedList(sortedList, curr);
+		curr = next;
+
+	}
+	unsortedList = sortedList;
+	//printList(sortedList);
+
+}
+
+void insertIntoSortedList(Node* unsortedList, Node* toInsert) {
+
+	//CHECK IF THE NODE TO INSERT HAS TO GO BEFORE HEAD
+	if(unsortedList == NULL) {
+
+		toInsert->next = unsortedList;
+		unsortedList = toInsert;
+
+	}
+	else if(comparator(unsortedList, toInsert)==-1 ||
+		     comparator(unsortedList, toInsert)==0)
+	{
+		int tst=comparator(unsortedList, toInsert);
+		printf("%d\n", tst);
+		toInsert->next = unsortedList;
+		unsortedList = toInsert;
+
+	}
+
+	else {
+
+		Node* sortedPtr = unsortedList;
+		while(sortedPtr->next != NULL && comparator(sortedPtr->next, toInsert)==1) {
+
+			sortedPtr = sortedPtr->next;
+
+		}
+		toInsert->next = sortedPtr->next;
+		sortedPtr->next = toInsert;
+
+	}
+
+}
 
 /*
 int quickSort( void* toSort, int (*comparator)(void*, void*) ) {
-
 }*/
 
 int main(int argc, char* argv[]) {
@@ -299,20 +360,32 @@ int main(int argc, char* argv[]) {
 
 	//initialize list
 	Node* root=readFile(fd);
-	printList(root);
+	//printList(root);
 
 	//find first non-empty token in order to use it to determine if we are dealing with ints or chars
 	Node* firstNonEmptyToken = firstToken(root);
 
 	flag = isIntOrStringFile(firstNonEmptyToken);
-	printf("%s\n",firstNonEmptyToken->token);
-	printf("%c\n",flag);
-
-	char* word1 = "apple";
-	char* word2 = "apple";
+	//printf("%s\n",firstNonEmptyToken->token);
+	//printf("%c\n",flag);
+	/*
+	void* word1 = "banana";
+	void* word2 = "apple";
 	int test = stringComparator(word1,word2);
 	printf("%d\n",test);
+	*/
+	/*
+	void* int1 = "anirudh";
+	void* int2 = "aditya";
+	int test = stringComparator(int1,int2);
+	printf("%d\n", test);
+	*/
 
+	//int (*fnPtr)(void*, void*) = comparator;
+	//insertionSort(root, fnPtr);
+	//printList(root);
+
+	destroy(root);
 	close(fd);
 
 }
