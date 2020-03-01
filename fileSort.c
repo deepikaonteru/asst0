@@ -9,6 +9,7 @@
 typedef struct Node{
 	char* token; 
 	struct Node* next;
+	int size;
 } Node;
 
 /* flag stores whether file is ints or chars*/
@@ -17,16 +18,19 @@ char flag;
 Node* readFile(int fd);
 Node* createNode(char* string);
 Node* insert(Node* root, char* string);
+Node* findLastNode(Node* root);
 Node* firstToken(Node* root);
+Node* joinLeftAndRight(Node* leftSubList, Node* pivot, Node* rightSubList);
+Node* quickSortRec(Node* toSort, int (*comparator)(void*, void*));
 void printList(Node* root);
 void destroy(Node* root);
 void refresh(char* buffer, int count);
 char isIntOrStringFile(Node* token);
-int comparator( void* s1, void* s2);
-int stringComparator( void* s1, void* s2);
-int intComparator( void* s1, void* s2);
+int comparator(void* s1, void* s2);
+int stringComparator(void* s1, void* s2);
+int intComparator(void* s1, void* s2);
 int insertionSort(void* toSort, int (*comparator)(void*, void*));
-int quickSort( void* toSort, int (*comparator)(void*, void*)); 
+int quickSort(void* toSort, int (*comparator)(void*, void*)); 
 
 Node* createNode(char* string){
 	// allocate memory for a node with a defualt value
@@ -50,6 +54,30 @@ Node* insert(Node* root, char* string){
 		Node* newNode = createNode(string);
 		newNode->next = root;
 		return newNode;
+}
+
+Node* findLastNode(Node* root) {
+
+	Node* tmp = root;
+	while(tmp->next != NULL) {
+		tmp=tmp->next;
+	}
+	return tmp;
+
+}
+
+Node* joinLeftAndRight(Node* leftSubList, Node* pivot, Node* rightSubList) {
+
+	pivot->next = rightSubList;
+
+	//If there's nothing left of pivot, you just have pivot and rightSubList
+	if(leftSubList == NULL) return pivot;
+	
+	//Otherwise, find end of left to connect to pivot
+	Node* leftSubListTail = findLastNode(leftSubList);
+	leftSubListTail->next = pivot;
+	return leftSubList;
+
 }
 
 Node* firstToken(Node* root){
@@ -240,6 +268,7 @@ Node* readFile(int fd) {
 
 			/*Create Node HERE*/
 			root = insert(root, buffer);
+			root->size = count;
 			//printf("%s\n", root->token);
 			//printf("%s\n", buffer);
 			refresh(buffer, count);
@@ -288,8 +317,7 @@ int insertionSort(void* toSort, int (*comparator)(void*, void*)) {
 			//printList(sortedList);
 
 		}
-		else if(comparator(sortedList, toInsert)==1 ||
-		     comparator(sortedList, toInsert)==0)
+		else if(comparator(sortedList, toInsert)==1 || comparator(sortedList, toInsert)==0)
 		{
 			//int tst=comparator(sortedList, toInsert);
 			//printf("%d\n", tst);
@@ -316,12 +344,61 @@ int insertionSort(void* toSort, int (*comparator)(void*, void*)) {
 
 	unsortedList = sortedList;
 	printList(sortedList);
+	return 1;
  
 }
 
+Node* quickSortRec(Node* toSort, int (*comparator)(void*, void*)) {
 
+	//Base case
+	if(toSort == NULL) {
+		return toSort;
+	}
+	if(toSort->next == NULL) {
+		return toSort;
+	}
 
-int quickSort( void* toSort, int (*comparator)(void*, void*) ) {
+	//Set the parts of the quickSort list
+	Node* pivot = toSort;
+	Node* leftSubList = NULL;
+	Node* rightSubList = NULL;
+
+	//Loop through list to pick out nodes to put into left and right
+	Node* curr = toSort;
+	while(curr != NULL) {
+		//Keep a reference to curr->next saved, because curr's next will be delinked and saved to left/right
+		Node* next = curr->next;
+		//Fill subLists
+		if(curr != pivot) {
+			//fill leftSubList
+			if(comparator(curr, pivot)==0 || comparator(curr, pivot)==-1) {
+				curr->next = leftSubList;
+				leftSubList = curr;
+			}
+			//fill rightSubList
+			else {
+				curr->next = rightSubList;
+				rightSubList = curr;
+			}
+		}
+
+		curr = next;
+	}
+	//printList(leftSubList);
+	//printList(rightSubList);
+
+	return joinLeftAndRight(quickSortRec(leftSubList, comparator), pivot, quickSortRec(rightSubList, comparator));
+
+}
+
+int quickSort(void* toSort, int (*comparator)(void*, void*)) {
+	//call recursion
+	Node* sortedList = quickSortRec((Node*)toSort, comparator);
+	//print result of recursion
+	printList(sortedList);
+	
+	return 1;
+
 }
 
 int main(int argc, char* argv[]) {
@@ -415,7 +492,7 @@ int main(int argc, char* argv[]) {
 	}
 	//dumbquick
 	else {
-		
+		quickSort(root, comparator);
 	}
 
 	destroy(root);
