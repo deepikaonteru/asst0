@@ -1,0 +1,148 @@
+------------------------------------------------------------------------ test cases ------------------------------------------------------------------------ 
+* FATAL ERRORS * 
+--------------------------------------------------------------------------------------------------------
+1) Inputting no argument
+INPUT: ./a.out 
+OUTPUT: Fatal Error: expected two arguments, had none
+--------------------------------------------------------------------------------------------------------
+2) Inputting only one argument
+INPUT: ./a.out ./somefile
+OUTPUT: Fatal Error: expected two arguments, had one
+--------------------------------------------------------------------------------------------------------
+3) Inputting a file that does not exist or switching order of arguments
+INPUT: ./a.out  -q ./somefile
+INPUT: ./a.out ./somefile -q    
+OUTPUT: Fatal Error: file "-q" does not exist
+--------------------------------------------------------------------------------------------------------
+* ERROR * 
+--------------------------------------------------------------------------------------------------------
+5) if malloc call returns null 
+EXPECTED OUTPUT: Error: malloc() returned NULL, running again...
+--------------------------------------------------------------------------------------------------------
+* WARNINGS *
+--------------------------------------------------------------------------------------------------------
+4) Inputting more than two arrguments
+INPUT: ./a.out -q ./somefile ./someOtherFile
+OUTPUT: Warning: too many arguments. Program will run based on first two
+--------------------------------------------------------------------------------------------------------
+5) Passing in an empty file to read
+INPUT: ./a.out -i ./emptyfile
+OUTPUT: Warning: File is empty. Done reading.
+--------------------------------------------------------------------------------------------------------
+* NON ERRORS * 
+*Outputs were the same for both insertion sort AND quick sort*
+--------------------------------------------------------------------------------------------------------
+6) all empty tokens
+CONTENT OF FILE: 
+,
+,,
+OUTPUT: 
+
+
+
+--------------------------------------------------------------------------------------------------------
+7) empty token at eof
+CONTENT OF FILE:
+12,26,16,
+OUTPUT: 
+12
+16
+26
+--------------------------------------------------------------------------------------------------------
+8) empty token in middle
+CONTENT OF FILE:
+12,26,,16
+OUTPUT:
+
+12
+16
+26
+--------------------------------------------------------------------------------------------------------
+9) empty token at beginning
+CONTENT OF FILE:
+,12,26,16
+OUTPUT:
+
+12
+16
+26
+--------------------------------------------------------------------------------------------------------
+10) simple all int test cases with weird spacing
+CONTENT OF FILE:
+345 , 7654 ,  234, 12 , 345
+OUTPUT: 
+12
+234
+345
+345
+7654
+--------------------------------------------------------------------------------------------------------
+11) simple all char* test cases with weird spacing
+CONTENT OF FILE:
+apple , tangerine , banana, orange, watermelon, pear , papaya
+OUTPUT:
+apple
+banana
+orange
+papaya
+pear
+tangerine
+watermelon
+--------------------------------------------------------------------------------------------------------
+12) ints with duplicate tokens
+CONTENT OF FILE:
+13,13,13,13
+OUTPUT:
+13
+13
+13
+13
+--------------------------------------------------------------------------------------------------------
+13) char* test cases with duplicate tokens
+CONTENT OF FILE:
+deymious,deymious,deymious,deymious
+OUTPUT:
+deymious
+deymious
+deymious
+deymious
+--------------------------------------------------------------------------------------------------------
+14) negative numbers and numbers with leading 00
+CONTENT OF FILE:
+-007, -4, -6, -23
+OUTPUT:
+-23
+-7
+-6
+-4
+--------------------------------------------------------------------------------------------------------
+15) negative numbers, zeroes, positive numbers, empty tokens, numbers leading with 00 all in one
+*We treated empty tokens as LESS THAN negative numbers, as they are empty*
+CONTENT OF FILE: 
+34,-325,0,,6,12,-4,00985
+OUTPUT:
+
+-325
+-4
+0
+6
+12
+34
+985
+--------------------------------------------------------------------------------------------------------
+16) simple words and new line
+CONTENT OF FILE:
+system,object,
+hashtable,list,array,
+union,
+structure
+OUTPUT:
+array
+hashtable
+list
+object
+structure
+system
+union
+--------------------------------------------------------------------------------------------------------
+
