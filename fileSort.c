@@ -460,7 +460,7 @@ int main(int argc, char* argv[]) {
 	if(bytesRead == 0) {
 		printf("Warning: File is empty. Done reading.\n");
 		close(fd);
-		return 0;
+		return 1;
 	}
 	close(fd);
 	fd = open(argv[2], O_RDONLY);
@@ -472,7 +472,11 @@ int main(int argc, char* argv[]) {
 
 
 	//If root is empty token, that means token at end of file was empty, we don't want that token included
-	if(root->token[0]=='\0') root=root->next;
+	if(root->token[0]=='\0') {
+		Node* tmpRoot = root->next;
+		free(root);
+		root = tmpRoot;
+	}
 	
 	// find first non-empty token in order to use it to determine if we are dealing with ints or chars
 	Node* firstNonEmptyToken = firstToken(root);
@@ -521,6 +525,7 @@ int main(int argc, char* argv[]) {
 
 	destroy(root);
 	close(fd);
+	return 1;
 
 }
 
