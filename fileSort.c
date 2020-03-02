@@ -34,6 +34,12 @@ int quickSort(void* toSort, int (*comparator)(void*, void*));
 Node* createNode(char* string){
 	// allocate memory for a node with a defualt value
 	Node* node = (Node*)(malloc(sizeof(Node)));
+	if(node == NULL) {
+		printf("Error: malloc() returned NULL, running again...\n");
+		while(node != NULL) {
+			node = (Node*)(malloc(sizeof(Node)));
+		}
+	}
 	node->next = NULL;	
 	// allocate memory & point node->token at the string we want to copy into said Node
 	node->token = strdup(string);
@@ -50,9 +56,9 @@ Node* insert(Node* root, char* string){
 	}
 
 	// add to beginning of list
-		Node* newNode = createNode(string);
-		newNode->next = root;
-		return newNode;
+	Node* newNode = createNode(string);
+	newNode->next = root;	
+	return newNode;
 }
 
 Node* findLastNode(Node* root) {
@@ -153,10 +159,10 @@ int stringComparator(void* s1, void* s2) {
 		i ++;
 	}
 		   
-	if(firstToken[i] < secondToken[i]){
+	if(firstToken[i] < secondToken[i]) {
 		return -1;
 	}
-	else if(firstToken[i] > secondToken[i]){
+	else if(firstToken[i] > secondToken[i]) {
 		return 1;
 	}
 		
@@ -269,7 +275,7 @@ Node* readFile(int fd) {
 			root = insert(root, buffer);
 			//printf("%s\n", root->token);
 			//printf("%s\n", buffer);
-			refresh(buffer, count);
+			refresh(buffer, 200);
 			count=0;
 			
 
@@ -412,6 +418,11 @@ int main(int argc, char* argv[]) {
 		return -1;
 	}
 
+	//Too many arguments
+	if(argc > 3) {
+		printf("Warning: too many arguments. Program will run based on first two\n");
+	}
+
 	//File exist?
 	int fd = open(argv[2], O_RDONLY);
 	if(fd == -1) {
@@ -443,10 +454,22 @@ int main(int argc, char* argv[]) {
 		return -1;		
 	}
 
+	//Check if empty file
+	char c;
+	int bytesRead = read(fd, &c, 1);
+	if(bytesRead == 0) {
+		printf("Warning: File is empty. Done reading.\n");
+		close(fd);
+		return 0;
+	}
+	close(fd);
+	fd = open(argv[2], O_RDONLY);
+
 	//initialize list
 	Node* root=readFile(fd);
 	//printList(root);
 	//printf("\n\n");
+
 
 	//If root is empty token, that means token at end of file was empty, we don't want that token included
 	if(root->token[0]=='\0') root=root->next;
@@ -458,9 +481,10 @@ int main(int argc, char* argv[]) {
 	//all empty tokens?
 	if(flag == 'e') {
 		printList(root);
+		destroy(root);
+		close(fd);
 		return 1;
 	}
-
 	//printf("%s\n",firstNonEmptyToken->token);
 	//printf("%c\n",flag);
 	/*
@@ -486,7 +510,7 @@ int main(int argc, char* argv[]) {
 
 	//insertion sort or quicksort?
 
-	//insertion
+	//insertion*/
 	if(argv[1][1] == 'i') {
 		insertionSort(root, comparator);
 	}
